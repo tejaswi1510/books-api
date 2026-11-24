@@ -26,6 +26,13 @@ class Settings(BaseSettings):
     # Comma-separated list of valid API keys (several allow key rotation).
     api_keys: SecretStr | None = None
 
+    # --- JWT login ---
+    # Generate with: python -c "import secrets; print(secrets.token_urlsafe(48))"
+    # Set APP_JWT_SECRET_KEY in .env only. Never commit it.
+    jwt_secret_key: SecretStr | None = None
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+
     # --- AI assistant (OpenAI) ---
     # Set APP_OPENAI_API_KEY in your environment or .env file. Never commit it.
     openai_api_key: SecretStr | None = None

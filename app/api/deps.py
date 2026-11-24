@@ -10,10 +10,12 @@ from app.clients.llm import LLMClient
 from app.clients.openai_client import OpenAILLMClient
 from app.core.config import Settings, get_settings
 from app.core.rate_limit import InMemoryRateLimiter, RateLimiter
-from app.exceptions import AINotConfiguredError, RateLimitExceededError
+from app.exceptions import AINotConfiguredError, AuthNotConfiguredError, RateLimitExceededError
 from app.repositories.base import BookRepository
 from app.repositories.csv_book_repository import CsvBookRepository
+from app.repositories.user_repository import UserRepository
 from app.services.assistant_service import AssistantService
+from app.services.auth_service import AuthService
 from app.services.book_service import BookService
 from app.services.drift_monitor import ModelDriftMonitor
 
@@ -21,12 +23,31 @@ logger = logging.getLogger(__name__)
 
 
 @lru_cache
+def get_session_factory():
+    """One shared engine/session factory for everything that talks to Postgres."""
+    settings = get_settings()
+    if not settings.database_url:
+        raise AuthNotConfiguredError("Login needs a database. Set APP_DATABASE_URL and restart.")
+    return create_session_factory(create_db_engine(settings.database_url))
+
+
+@lru_cache
 def get_book_repository() -> BookRepository:
     settings = get_settings()
     if settings.database_url:
-        engine = create_db_engine(settings.database_url)
-        return SqlBookRepository(create_session_factory(engine))
+        return SqlBookRepository(get_session_factory())
     return CsvBookRepository(settings.books_csv_path)
+
+
+def get_user_repository() -> UserRepository:
+    return UserRepository(get_session_factory())
+
+
+def get_auth_service(
+    users: Annotated[UserRepository, Depends(get_user_repository)],
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> AuthService:
+    return AuthService(users, settings)
 
 
 def get_book_service(

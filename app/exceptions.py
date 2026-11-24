@@ -99,7 +99,17 @@ class AuthNotConfiguredError(AppError):
     status_code = 503
     code = "auth_not_configured"
 
+    def __init__(
+        self,
+        message: str = "API authentication is not configured. Set APP_API_KEYS and restart the server.",
+    ) -> None:
+        super().__init__(message)
+
+
+class InvalidCredentialsError(AuthenticationError):
+    """Wrong username or password. Deliberately vague so it never reveals which one."""
+
+    headers = {"WWW-Authenticate": "Bearer"}
+
     def __init__(self) -> None:
-        super().__init__(
-            "API authentication is not configured. Set APP_API_KEYS and restart the server."
-        )
+        super().__init__("Incorrect username or password")
