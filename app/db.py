@@ -21,6 +21,17 @@ class BookRow(Base):
     rating: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
+class UserRow(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    # Only the Argon2 hash is stored, never the password itself.
+    hashed_password: Mapped[str] = mapped_column(String(255))
+    role: Mapped[str] = mapped_column(String(20), default="user")  # "user" or "admin"
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
 def create_db_engine(url: str) -> Engine:
     # pool_pre_ping checks a connection is alive before using it.
     return create_engine(url, pool_pre_ping=True)
