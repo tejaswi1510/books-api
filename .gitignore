@@ -1,0 +1,54 @@
+# --- Secrets (never commit) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+credentials.json
+
+# --- Python virtual environments (any name) ---
+.venv/
+.venv*/
+venv/
+env/
+
+# --- Python caches and build output ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# --- Test, lint and type-check caches ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# --- Project outputs ---
+evals/results/
+*.csv.tmp
+*.log
+
+# --- Docker / local data ---
+pgdata/
+docker-compose.override.yml
+
+# --- Infrastructure as code (later phases) ---
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+cdk.out/
+
+# --- Front end (later phase) ---
+node_modules/
+
+# --- Editors and OS ---
+.DS_Store
+.idea/
+.vscode/
