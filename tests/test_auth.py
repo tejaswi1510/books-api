@@ -28,7 +28,7 @@ def test_write_without_key_returns_401(auth_client):
     resp = auth_client.post(BOOKS, json=NEW_BOOK)
     assert resp.status_code == 401
     assert resp.json()["error"]["code"] == "unauthorized"
-    assert resp.headers["www-authenticate"] == "ApiKey"
+    assert resp.headers["www-authenticate"] == "Bearer"
 
 
 def test_write_with_wrong_key_returns_401(auth_client):

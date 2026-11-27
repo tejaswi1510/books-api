@@ -42,6 +42,6 @@ def decode_access_token(token: str, settings: Settings) -> dict:
             options={"require": ["exp", "sub"]},
         )
     except jwt.ExpiredSignatureError:
-        raise AuthenticationError("Token has expired. Log in again.")
+        raise AuthenticationError("Token has expired. Log in again.", scheme="Bearer")
     except jwt.InvalidTokenError:
-        raise AuthenticationError("Invalid token.")
+        raise AuthenticationError("Invalid token.", scheme="Bearer")

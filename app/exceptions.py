@@ -89,9 +89,20 @@ class RateLimitExceededError(AppError):
 class AuthenticationError(AppError):
     status_code = 401
     code = "unauthorized"
-    headers = {"WWW-Authenticate": "ApiKey"}
 
-    def __init__(self, message: str = "Authentication required") -> None:
+    def __init__(self, message: str = "Authentication required", scheme: str = "ApiKey") -> None:
+        super().__init__(message)
+        # Tells the client how to authenticate (sent as the WWW-Authenticate header).
+        self.headers = {"WWW-Authenticate": scheme}
+
+
+class ForbiddenError(AppError):
+    """Logged in, but not allowed to do this (HTTP 403, not 401)."""
+
+    status_code = 403
+    code = "forbidden"
+
+    def __init__(self, message: str = "You do not have permission to do this") -> None:
         super().__init__(message)
 
 
@@ -109,7 +120,5 @@ class AuthNotConfiguredError(AppError):
 class InvalidCredentialsError(AuthenticationError):
     """Wrong username or password. Deliberately vague so it never reveals which one."""
 
-    headers = {"WWW-Authenticate": "Bearer"}
-
     def __init__(self) -> None:
-        super().__init__("Incorrect username or password")
+        super().__init__("Incorrect username or password", scheme="Bearer")

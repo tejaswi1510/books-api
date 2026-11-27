@@ -6,12 +6,14 @@ from app.api.deps import BookServiceDep
 from app.schemas.book import Book, BookCreate, BookList, BookPatch, BookUpdate
 from app.schemas.common import ErrorResponse
 from app.services.book_service import SortField, SortOrder
-from app.core.security import require_api_key
+from app.core.security import get_current_principal, require_admin
 
 router = APIRouter(prefix="/books", tags=["Books"])
 
 NOT_FOUND = {404: {"model": ErrorResponse, "description": "Book not found"}}
-PROTECTED = [Depends(require_api_key)]
+# Any logged-in user (or a valid API key) may write. Deleting needs an admin.
+PROTECTED = [Depends(get_current_principal)]
+ADMIN_ONLY = [Depends(require_admin)]
 # Handlers are plain `def` (not async) because the CSV I/O is blocking;
 # FastAPI runs them in a threadpool so the event loop is never blocked.
 
@@ -88,7 +90,7 @@ def patch_book(book_id: int, payload: BookPatch, service: BookServiceDep) -> Boo
     status_code=status.HTTP_204_NO_CONTENT,
     responses=NOT_FOUND,
     summary="Delete a book",
-    dependencies=PROTECTED,
+    dependencies=ADMIN_ONLY,
 )
 def delete_book(book_id: int, service: BookServiceDep) -> Response:
     service.delete_book(book_id)

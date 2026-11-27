@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from app.api.deps import AssistantServiceDep, enforce_ai_rate_limit
 from app.schemas.assistant import AskRequest, AskResponse
 from app.schemas.common import ErrorResponse
-from app.core.security import require_api_key
+from app.core.security import get_current_principal
 
 router = APIRouter(prefix="/assistant", tags=["AI Assistant"])
 
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/assistant", tags=["AI Assistant"])
     response_model=AskResponse,
     summary="Ask a question about the book catalogue",
     # The rate limiter runs first, so over-limit callers never reach (or cost) OpenAI.
-    dependencies=[Depends(require_api_key), Depends(enforce_ai_rate_limit)],
+    dependencies=[Depends(get_current_principal), Depends(enforce_ai_rate_limit)],
     responses={
         400: {"model": ErrorResponse, "description": "Question blocked by input guardrails"},
         429: {

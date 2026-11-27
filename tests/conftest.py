@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from app.api.deps import get_book_repository, get_client_rate_limiter, get_global_rate_limiter
 from app.core.config import Settings, get_settings
 from app.core.rate_limit import InMemoryRateLimiter
-from app.core.security import require_api_key
+from app.core.security import Principal, get_current_principal
 from app.main import create_app
 from app.repositories.csv_book_repository import CsvBookRepository
 
@@ -35,7 +35,7 @@ def _build_app(tmp_path):
 def client(tmp_path):
     """Auth check is bypassed, so existing tests focus on behaviour."""
     app = _build_app(tmp_path)
-    app.dependency_overrides[require_api_key] = lambda: None
+    app.dependency_overrides[get_current_principal] = lambda: Principal("test-admin", "admin", "test")
     with TestClient(app) as test_client:
         yield test_client
 
